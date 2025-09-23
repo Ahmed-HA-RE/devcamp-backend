@@ -9,6 +9,9 @@ dotenv.config();
 const app = express();
 connectDB();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
 const PORT = process.env.PORT || 8000;
 
 app.use(logger);

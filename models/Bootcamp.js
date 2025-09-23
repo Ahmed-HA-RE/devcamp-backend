@@ -18,7 +18,7 @@ const bootcampSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      maxLength: [14, 'Please enter a valid phone number'],
+      maxLength: [20, 'Please enter a valid phone number'],
     },
     website: {
       type: String,
@@ -32,11 +32,9 @@ const bootcampSchema = new mongoose.Schema(
       type: {
         type: String,
         enum: ['Point'],
-        required: true,
       },
       coordinates: {
         type: [Number],
-        required: true,
         index: '2dsphere',
       },
       formattedAddress: String,
@@ -44,9 +42,9 @@ const bootcampSchema = new mongoose.Schema(
       city: String,
       state: String,
       zipcode: String,
-      country: { type: String, default: 'UAE' },
+      country: { type: String },
     },
-    carrers: {
+    careers: {
       type: [String],
       enum: [
         'Web Development',
@@ -87,4 +85,4 @@ const bootcampSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default Bootcamp = mongoose.model('Bootcamp', bootcampSchema);
+export const Bootcamp = mongoose.model('Bootcamp', bootcampSchema);

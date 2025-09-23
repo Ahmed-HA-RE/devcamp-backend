@@ -15,7 +15,7 @@ export const bootcampSchema = z.object({
   phone: z.coerce
     .number({ error: 'Phone number is required' })
     .nonnegative({ error: 'Number can not be negative' })
-    .gt(14, { error: 'Please enter a valid phone number' }),
+    .gt(20, { error: 'Please enter a valid phone number' }),
   website: z.url({
     protocol:
       /^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/,
@@ -25,7 +25,7 @@ export const bootcampSchema = z.object({
   address: z
     .string({ error: 'Address is required' })
     .nonempty({ error: 'Address is required' }),
-  carrers: z.enum(
+  careers: z.enum(
     [
       'Web Development',
       'Mobile Development',
