@@ -42,7 +42,7 @@ const bootcampSchema = new mongoose.Schema(
       city: String,
       state: String,
       zipcode: String,
-      country: { type: String },
+      country: String,
     },
     careers: {
       type: [String],

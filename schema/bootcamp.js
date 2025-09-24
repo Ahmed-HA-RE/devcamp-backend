@@ -6,44 +6,65 @@ export const bootcampSchema = z.object({
     .nonempty({ error: 'Name is required' })
     .min(3, { error: 'Name must contain at least 3 characters' })
     .max(20, { error: 'Name must not exceed 20 characters' }),
-  slug: z.string().optional(),
   description: z
     .string({ error: 'Description is required' })
     .nonempty({ error: 'Description is required' })
     .max(500),
   email: z.email({ error: 'Please enter a valid email' }),
-  phone: z.coerce
-    .number({ error: 'Phone number is required' })
-    .nonnegative({ error: 'Number can not be negative' })
-    .gt(20, { error: 'Please enter a valid phone number' }),
-  website: z.url({
-    protocol:
-      /^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/,
-    hostname: z.regexes.domain,
-    error: 'Please enter a valid URL either HTTP or HTTPS',
-  }),
+  phone: z
+    .string({ error: 'Phone number is required' })
+    .regex(/^((\+971|00971){1}(2|3|4|6|7|9|50|51|52|55|56){1}([0-9]{7}))$/, {
+      error: 'Please enter a valid UAE phone number',
+    }),
+  website: z
+    .string()
+    .regex(
+      /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi,
+      { error: 'Please enter a valid URL either HTTP or HTTPS' }
+    ),
   address: z
     .string({ error: 'Address is required' })
     .nonempty({ error: 'Address is required' }),
-  careers: z.enum(
-    [
-      'Web Development',
-      'Mobile Development',
-      'UI/UX',
-      'Data Science',
-      'Business',
-      'Other',
-    ],
-    { error: 'Field is required' }
+  careers: z.array(
+    z.literal(
+      [
+        'Web Development',
+        'Mobile Development',
+        'UI/UX',
+        'Data Science',
+        'Business',
+        'Other',
+      ],
+      { error: 'Please choose one of the provided fields only' }
+    ),
+    { error: 'Please choose one of the provided fields' }
   ),
-  averageRating: z
-    .number()
-    .min(1, { error: 'Rating musst be at least 1' })
-    .max(10, { error: "Rating can't be more than 10" }),
-  averageCost: z.string(),
   photo: z.string().prefault('no-photo.jpg'),
-  housing: z.boolean().prefault(false),
-  jobAssistance: z.boolean().prefault(false),
-  jobGuarantee: z.boolean().prefault(false),
-  acceptGi: z.boolean().prefault(false),
+  housing: z
+    .boolean({
+      error:
+        'Please specify if the housing is available or not by choosing only true or false',
+    })
+    .prefault(false),
+  jobAssistance: z
+    .boolean({
+      error:
+        'Please specify if job assistance is available or not by choosing only true or false',
+    })
+    .prefault(false),
+  jobGuarantee: z
+    .boolean({
+      error:
+        'Please specify if job guarantee is available or not by choosing only true or false',
+    })
+    .prefault(false),
+  acceptGi: z
+    .boolean({
+      error:
+        'Please specify if the GI Bill is available or not by choosing only true or false',
+    })
+    .prefault(false),
 });
+
+// schema for PUT HTTP method
+export const updatedBootcampSchema = bootcampSchema.partial();

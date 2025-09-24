@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import bootcampsRouter from './routes/bootcamps.js';
 import { connectDB } from './config/database.js';
 import { logger } from './middleware/logger.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
 
@@ -18,6 +19,9 @@ app.use(logger);
 
 // bootcamps router
 app.use('/api/v1/bootcamps', bootcampsRouter);
+
+// error middleware
+app.use(errorHandler);
 
 app.listen(PORT, () =>
   console.log(

@@ -1,4 +1,6 @@
+import mongoose from 'mongoose';
 import { Bootcamp } from '../models/Bootcamp.js';
+import { bootcampSchema, updatedBootcampSchema } from '../schema/bootcamp.js';
 
 // @route              GET /api/v1/bootcamps
 // @desc               Get all the bootcamps
@@ -6,11 +8,18 @@ import { Bootcamp } from '../models/Bootcamp.js';
 export async function getBootcamps(req, res, next) {
   try {
     const bootcamps = await Bootcamp.find();
+
+    if (!bootcamps) {
+      const err = new Error('No bootcamps found');
+      err.status = 404;
+      throw err;
+    }
+
     res
       .status(200)
       .json({ success: true, count: bootcamps.length, data: bootcamps });
   } catch (error) {
-    res.status(400).json({ success: false });
+    next(error);
   }
 }
 
@@ -24,12 +33,14 @@ export async function getBootcamp(req, res, next) {
     const bootcamp = await Bootcamp.findById(id);
 
     if (!bootcamp) {
-      return res.status(404).json({ success: false });
+      const err = new Error(`No bootcamp found with the id of ${id}`);
+      err.status = 404;
+      throw err;
     }
 
     res.status(200).json({ success: true, data: bootcamp });
   } catch (error) {
-    res.status(400).json({ success: false });
+    next(error);
   }
 }
 
@@ -38,10 +49,13 @@ export async function getBootcamp(req, res, next) {
 // @access             Private
 export async function createBootcamp(req, res, next) {
   try {
-    const newBootcamp = await Bootcamp.create(req.body);
+    const validatedData = bootcampSchema.parse(req.body);
+
+    const newBootcamp = await Bootcamp.create(validatedData);
+
     res.status(201).json({ success: true, data: newBootcamp });
   } catch (error) {
-    res.status(400).json({ success: false });
+    next(error);
   }
 }
 
@@ -51,20 +65,26 @@ export async function createBootcamp(req, res, next) {
 export async function updateBootcamp(req, res, next) {
   try {
     const { id } = req.params;
+    const validatedData = updatedBootcampSchema.parse(req.body);
 
-    const bootcamp = await Bootcamp.findOneAndUpdate({ _id: id }, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const bootcamp = await Bootcamp.findOneAndUpdate(
+      { _id: id },
+      validatedData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!bootcamp) {
-      return res.status(404).json({ success: false });
+      const err = new Error(`No bootcamp found`);
+      err.status = 404;
+      throw err;
     }
 
     return res.status(200).json({ success: true, data: bootcamp });
   } catch (error) {
-    console.log(error);
-    res.status(404).json({ success: false });
+    next(error);
   }
 }
 
@@ -78,12 +98,13 @@ export async function deleteBootcamp(req, res, next) {
     const bootcamp = await Bootcamp.findOneAndDelete({ _id: id });
 
     if (!bootcamp) {
-      return res.status(404).json({ success: false });
+      const err = new Error(`No bootcamp found`);
+      err.status = 404;
+      throw err;
     }
 
     return res.status(200).json({ success: true });
   } catch (error) {
-    console.log(error);
-    res.status(404).json({ success: false });
+    next(error);
   }
 }
