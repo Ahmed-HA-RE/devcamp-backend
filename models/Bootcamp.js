@@ -95,11 +95,13 @@ bootcampSchema.pre('save', function () {
 // Create location field
 bootcampSchema.pre('save', async function () {
   const loc = await geocoder.geocode(this.address);
-  console.log(loc);
+  console.log(loc[0]);
   this.location = {
     type: 'Point',
     coordinates: [loc[0].longitude, loc[0].latitude],
-    formattedAddress: loc[0].formattedAddress,
+    formattedAddress: `${loc[0].formattedAddress.split(',')[0]}, ${
+      loc[0].city
+    }, ${loc[0].country}`,
     street: loc[0].streetName,
     city: loc[0].city,
     state: loc[0].state,

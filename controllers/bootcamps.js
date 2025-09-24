@@ -72,7 +72,7 @@ export const updateBootcamp = asyncHandler(async (req, res, next) => {
     throw err;
   }
 
-  return res.status(200).json({ success: true, data: bootcamp });
+  res.status(200).json({ success: true, data: bootcamp });
 });
 
 // @route              DELETE /api/v1/bootcamps
@@ -89,5 +89,22 @@ export const deleteBootcamp = asyncHandler(async (req, res, next) => {
     throw err;
   }
 
-  return res.status(200).json({ success: true });
+  res.status(200).json({ success: true });
+});
+
+// @route              GET /api/v1/bootcamps/radius/:long/:lat/:distance
+// @desc               Get bootcamps within a radius
+// @access             Private
+export const getBootcampsInRadius = asyncHandler(async (req, res, next) => {
+  const { long, lat, distance } = req.params;
+
+  const radius = distance / 3963;
+
+  const bootcamps = await Bootcamp.find({
+    location: { $geoWithin: { $centerSphere: [[long, lat], radius] } },
+  });
+
+  res
+    .status(200)
+    .json({ success: true, count: bootcamps.length, data: bootcamps });
 });
