@@ -1,7 +1,7 @@
 import { ZodError } from 'zod';
 import z from 'zod';
 
-export function errorHandler(err, req, res, next) {
+export const errorHandler = (err, req, res, next) => {
   console.error(err);
 
   // Mongoose invalid id error
@@ -27,4 +27,4 @@ export function errorHandler(err, req, res, next) {
   }
 
   res.status(err.status || 500).json({ success: false, message: err.message });
-}
+};
