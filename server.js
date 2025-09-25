@@ -12,6 +12,7 @@ connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.set('query parser', 'extended');
 
 const PORT = process.env.PORT || 8000;
 
