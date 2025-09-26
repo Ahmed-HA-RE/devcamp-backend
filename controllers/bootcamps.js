@@ -20,10 +20,13 @@ export const getBootcamps = asyncHandler(async (req, res, next) => {
     queryStr.replace(/\b(gt|gte|lt|lte|in|eq)\b/g, (match) => `$${match}`)
   );
 
-  query = Bootcamp.find(queryStr);
+  query = Bootcamp.find(queryStr).populate({
+    path: 'courses',
+    select: 'title weeks',
+  });
 
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 1;
+  const limit = Number(req.query.limit) || 20;
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
   const total = await Bootcamp.countDocuments();
@@ -136,13 +139,15 @@ export const updateBootcamp = asyncHandler(async (req, res, next) => {
 export const deleteBootcamp = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
-  const bootcamp = await Bootcamp.findOneAndDelete({ _id: id });
+  const bootcamp = await Bootcamp.findById(id);
 
   if (!bootcamp) {
     const err = new Error(`No bootcamp found`);
     err.status = 404;
     throw err;
   }
+
+  await bootcamp.deleteOne();
 
   res.status(200).json({ success: true });
 });
