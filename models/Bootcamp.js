@@ -10,7 +10,7 @@ const bootcampSchema = new mongoose.Schema(
       required: [true, 'Name is required'],
       unique: true,
       minLength: 3,
-      maxLength: 20,
+      maxLength: 30,
     },
     slug: String,
     description: { type: String, required: true, maxLength: 500 },

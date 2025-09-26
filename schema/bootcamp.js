@@ -5,7 +5,7 @@ export const bootcampSchema = z.object({
     .string({ error: 'Name is required' })
     .nonempty({ error: 'Name is required' })
     .min(3, { error: 'Name must contain at least 3 characters' })
-    .max(20, { error: 'Name must not exceed 20 characters' }),
+    .max(30, { error: 'Name must not exceed 20 characters' }),
   description: z
     .string({ error: 'Description is required' })
     .nonempty({ error: 'Description is required' })
