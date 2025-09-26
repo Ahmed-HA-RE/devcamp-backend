@@ -7,8 +7,12 @@ import {
   updateBootcamp,
   getBootcampsInRadius,
 } from '../controllers/bootcamps.js';
+import coursesRoutes from './courses.js';
 
 const router = express.Router();
+
+// Re-route to another resource routers
+router.use('/:bootcampId/courses', coursesRoutes);
 
 router
   .route('/')

@@ -4,6 +4,7 @@ import bootcampsRouter from './routes/bootcamps.js';
 import { connectDB } from './config/database.js';
 import { logger } from './middleware/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import coursesRoutes from './routes/courses.js';
 
 dotenv.config();
 
@@ -20,6 +21,8 @@ app.use(logger);
 
 // bootcamps router
 app.use('/api/v1/bootcamps', bootcampsRouter);
+// courses router
+app.use('/api/v1/courses', coursesRoutes);
 
 // Not Found middleware
 app.use((req, res, next) => {
