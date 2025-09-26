@@ -8,9 +8,7 @@ export const courseSchema = z.object({
   description: z
     .string({ error: 'This field must be a valid text value.' })
     .nonempty({ error: 'Please add a description' }),
-  weeks: z
-    .string({ error: 'This field must be a valid text value.' })
-    .nonempty({ error: 'Please add number of weeks' }),
+  weeks: z.number({ error: 'This field must be a valid number value.' }),
   tuition: z
     .number({ error: 'Please enter a valid number.' })
     .nonnegative({ error: "Tuition can't be negative" })
@@ -18,6 +16,7 @@ export const courseSchema = z.object({
   minimumSkill: z.enum(['beginner', 'intermediate', 'advanced'], {
     error: 'Please enter a valid skill: Beginner, Intermediate or Advanced',
   }),
+  bootcamp: z.string().optional(),
   scholarshipAvailable: z
     .boolean({
       error: 'Please choose either true or false',

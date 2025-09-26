@@ -19,7 +19,7 @@ const courseSchema = new mongoose.Schema(
     bootcamp: {
       type: mongoose.Schema.ObjectId,
       ref: 'Bootcamp',
-      required: true,
+      required: [true, 'Please provided the Bootcamp for this course'],
     },
   },
   { timestamps: true }
