@@ -1,7 +1,7 @@
 import { Course } from '../models/Course.js';
 import asyncHandler from '../middleware/asyncHandler.js';
 import { Bootcamp } from '../models/Bootcamp.js';
-import { courseSchema } from '../schema/courseSchema.js';
+import { courseSchema, updateCourseSchema } from '../schema/courseSchema.js';
 
 // @route              GET /api/v1/courses
 // @route              GET /api/v1/bootcamp/:bootcampId/courses
@@ -70,4 +70,52 @@ export const createCourse = asyncHandler(async (req, res, next) => {
   const newCourse = await Course.create(validatedData);
 
   res.status(201).json({ success: true, data: newCourse });
+});
+
+// @route              PUT /api/v1/courses/:id
+// @desc               Update course
+// @access             Private
+export const updateCourse = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+
+  const course = await Course.find({ _id: id });
+  if (!course) {
+    const err = new Error('No course found');
+    err.status = 404;
+    throw err;
+  }
+
+  if (!req.body) {
+    const err = new Error('All fields must be provided');
+    err.status = 400;
+    throw err;
+  }
+
+  const validatedData = updateCourseSchema.parse(req.body);
+  console.log(validatedData);
+
+  const updatedCourse = await Course.findByIdAndUpdate(id, validatedData, {
+    runValidators: true,
+    new: true,
+  });
+
+  res.status(200).json({ success: true, data: updatedCourse });
+});
+
+// @route              DELETE /api/v1/courses/:id
+// @desc               Delete course
+// @access             Private
+export const deleteCourse = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+
+  const course = await Course.find({ _id: id });
+  if (!course) {
+    const err = new Error('No course found');
+    err.status = 404;
+    throw err;
+  }
+
+  await Course.deleteOne({ _id: id });
+
+  res.status(200).json({ success: true });
 });

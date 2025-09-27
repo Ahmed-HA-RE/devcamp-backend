@@ -32,7 +32,11 @@ export const errorHandler = (err, req, res, next) => {
   if (err instanceof ZodError) {
     return res
       .status(400)
-      .json({ success: false, errors: z.flattenError(err).fieldErrors });
+      .json({
+        success: false,
+        errors:
+          z.flattenError(err).fieldErrors || z.flattenError(err).formErrors,
+      });
   }
 
   res.status(err.status || 500).json({ success: false, message: err.message });
