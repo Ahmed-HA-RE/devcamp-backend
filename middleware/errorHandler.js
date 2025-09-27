@@ -35,5 +35,22 @@ export const errorHandler = (err, req, res, next) => {
       .json({ success: false, errors: z.flattenError(err).fieldErrors });
   }
 
+  // Multer error triggered if the user attempts to upload multiple photos
+  if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Only allowed to upload 1 photo' });
+  }
+
+  // Multer error triggered if the user attempts to upload photo that exceed 5mb
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: 'Only allowed to upload photo within 5mb',
+      });
+  }
+
   res.status(err.status || 500).json({ success: false, message: err.message });
 };

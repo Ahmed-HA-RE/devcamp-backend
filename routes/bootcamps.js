@@ -6,8 +6,17 @@ import {
   getBootcamps,
   updateBootcamp,
   getBootcampsInRadius,
+  uploadPhoto,
 } from '../controllers/bootcamps.js';
 import coursesRoutes from './courses.js';
+import multer from 'multer';
+
+// Multer config
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 
 const router = express.Router();
 
@@ -26,5 +35,7 @@ router
   .delete(deleteBootcamp); // DELETE /api/v1/bootcamps
 
 router.route('/radius/:long/:lat/:distance').get(getBootcampsInRadius); //GET /api/v1/bootcamps/radius/:long/:lat/:distance
+
+router.route('/:id/photo').put(upload.single('photo'), uploadPhoto);
 
 export default router;

@@ -1,6 +1,7 @@
 import { Bootcamp } from '../models/Bootcamp.js';
 import { bootcampSchema, updatedBootcampSchema } from '../schema/bootcamp.js';
 import asyncHandler from '../middleware/asyncHandler.js';
+import { uploadPhotoToCloudinary } from '../config/cloudinary.js';
 
 // @route              GET /api/v1/bootcamps
 // @desc               Get all the bootcamps
@@ -167,4 +168,30 @@ export const getBootcampsInRadius = asyncHandler(async (req, res, next) => {
   res
     .status(200)
     .json({ success: true, count: bootcamps.length, data: bootcamps });
+});
+
+// @route              PUT /api/v1/bootcamps/:id/photo
+// @desc               Update bootcamp to upload photo
+// @access             Private
+export const uploadPhoto = asyncHandler(async (req, res, next) => {
+  if (!req.body) {
+    const err = new Error('Please add a photo');
+    err.status = 400;
+    throw err;
+  }
+
+  if (!req.file.mimetype.startsWith('image')) {
+    const err = new Error('Please upload a file images extension');
+    err.status = 400;
+    throw err;
+  }
+  const photo = await uploadPhotoToCloudinary(req.file);
+  console.log(photo);
+  const updatedBootcamp = await Bootcamp.findByIdAndUpdate(
+    req.params.id,
+    { photo: photo.secure_url },
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).json({ success: true, file: photo.display_name });
 });
