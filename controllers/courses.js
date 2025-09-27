@@ -108,14 +108,14 @@ export const updateCourse = asyncHandler(async (req, res, next) => {
 export const deleteCourse = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
-  const course = await Course.find({ _id: id });
+  const course = await Course.findById(id);
   if (!course) {
     const err = new Error('No course found');
     err.status = 404;
     throw err;
   }
 
-  await Course.deleteOne({ _id: id });
+  await course.deleteOne({ _id: id });
 
   res.status(200).json({ success: true });
 });
