@@ -10,6 +10,8 @@ import {
 } from '../controllers/bootcamps.js';
 import coursesRoutes from './courses.js';
 import multer from 'multer';
+import { advancedResults } from '../middleware/advancedResults.js';
+import { Bootcamp } from '../models/Bootcamp.js';
 
 // Multer config
 const storage = multer.memoryStorage();
@@ -25,7 +27,10 @@ router.use('/:bootcampId/courses', coursesRoutes);
 
 router
   .route('/')
-  .get(getBootcamps) // GET /api/v1/bootcamps
+  .get(
+    advancedResults(Bootcamp, { path: 'courses', select: 'title description' }),
+    getBootcamps
+  ) // GET /api/v1/bootcamps
   .post(createBootcamp); // POST /api/v1/bootcamps
 
 router

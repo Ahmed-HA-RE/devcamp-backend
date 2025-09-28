@@ -7,75 +7,7 @@ import { uploadPhotoToCloudinary } from '../config/cloudinary.js';
 // @desc               Get all the bootcamps
 // @access             Public
 export const getBootcamps = asyncHandler(async (req, res, next) => {
-  let query;
-
-  const reqQuery = { ...req.query };
-
-  const removeFields = ['select', 'sort', 'page', 'limit'];
-
-  removeFields.forEach((field) => delete reqQuery[field]);
-
-  let queryStr = JSON.stringify(reqQuery);
-
-  queryStr = JSON.parse(
-    queryStr.replace(/\b(gt|gte|lt|lte|in|eq)\b/g, (match) => `$${match}`)
-  );
-
-  query = Bootcamp.find(queryStr).populate({
-    path: 'courses',
-    select: 'title weeks',
-  });
-
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 20;
-  const startIndex = (page - 1) * limit;
-  const endIndex = page * limit;
-  const total = await Bootcamp.countDocuments();
-
-  query = query.limit(limit).skip(startIndex);
-
-  if (req.query.select) {
-    const fields = req.query.select.split(',').join(' ');
-    query = query.select(fields);
-  }
-
-  if (req.query.sort) {
-    const fields = req.query.sort.split(',').join(' ');
-    query = query.sort(fields);
-  } else {
-    query = query.sort({ createdAt: -1 });
-  }
-
-  const pagination = {};
-
-  if (endIndex < total) {
-    pagination.next = {
-      page: page + 1,
-      limit,
-    };
-  }
-
-  if (startIndex > 0) {
-    pagination.prev = {
-      page: page - 1,
-      limit,
-    };
-  }
-
-  const bootcamps = await query;
-
-  if (!bootcamps) {
-    const err = new Error('No bootcamps found');
-    err.status = 404;
-    throw err;
-  }
-
-  res.status(200).json({
-    success: true,
-    count: bootcamps.length,
-    pagination,
-    data: bootcamps,
-  });
+  res.status(200).json(res.advancedResults);
 });
 
 // @route              GET /api/v1/bootcamps/:id
@@ -187,7 +119,7 @@ export const uploadPhoto = asyncHandler(async (req, res, next) => {
   }
   const photo = await uploadPhotoToCloudinary(req.file);
   console.log(photo);
-  const updatedBootcamp = await Bootcamp.findByIdAndUpdate(
+  await Bootcamp.findByIdAndUpdate(
     req.params.id,
     { photo: photo.secure_url },
     { new: true, runValidators: true }
