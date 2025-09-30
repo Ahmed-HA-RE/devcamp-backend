@@ -6,6 +6,7 @@ import authRouter from './routes/auth.js';
 import { connectDB } from './config/database.js';
 import { logger } from './middleware/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.set('query parser', 'extended');
+app.use(cookieParser());
 
 const PORT = process.env.PORT || 8000;
 

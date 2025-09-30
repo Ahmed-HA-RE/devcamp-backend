@@ -1,7 +1,8 @@
 import asyncHandler from '../middleware/asyncHandler.js';
 import { User } from '../models/User.js';
 import { registerSchema, loginSchema } from '../schema/authSchema.js';
-import bcrypt from 'bcryptjs';
+import * as jose from 'jose';
+import { JWT_SECRET } from '../utils/encryptJWT.js';
 
 // @route              POST /api/v1/auth/register
 // @desc               Register user
@@ -16,10 +17,28 @@ export const registerUser = asyncHandler(async (req, res, next) => {
   const { name, email, password, role } = req.body;
 
   const validatedData = registerSchema.parse({ name, email, password, role });
+
+  const isUserAvailable = User.findOne({ email });
+
+  if (isUserAvailable) {
+    const err = new Error('User already exists');
+    err.status = 400;
+    throw err;
+  }
+
   const user = await User.create(validatedData);
 
   // Create access token
   const { accessToken } = await user.generateToken();
+
+  // Create refresh token
+  const { refreshToken } = await user.generateToken();
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: process.env.NODE_ENV === 'production' ? true : false,
+  });
 
   res.status(201).json({
     succes: true,
@@ -64,6 +83,54 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   if (!isMatchedPass) {
     const err = new Error('Invalid Credentials');
     err.status = 401;
+    throw err;
+  }
+
+  // Create access token
+  const { accessToken } = await user.generateToken();
+
+  // Create refresh token
+  const { refreshToken } = await user.generateToken();
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: process.env.NODE_ENV === 'production' ? true : false,
+  });
+
+  res.status(201).json({
+    succes: true,
+    data: {
+      accessToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    },
+  });
+});
+
+// @route              POST /api/v1/auth/refresh
+// @desc               Refresh a user's token
+// @access             Private
+export const refreshToken = asyncHandler(async (req, res, next) => {
+  const { refreshToken } = req.cookies;
+
+  if (!refreshToken) {
+    const err = new Error('No token provided');
+    err.status = 401;
+    throw err;
+  }
+
+  const { payload } = await jose.jwtVerify(refreshToken, JWT_SECRET);
+
+  const user = await User.findById(payload.id);
+
+  if (!user) {
+    const err = new Error('User not found');
+    err.status = 404;
     throw err;
   }
 

@@ -44,12 +44,17 @@ export const errorHandler = (err, req, res, next) => {
 
   // Multer error triggered if the user attempts to upload photo that exceed 5mb
   if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({
+      success: false,
+      message: 'Only allowed to upload photo within 5mb',
+    });
+  }
+
+  // Jose error if JWT Token is invalid
+  if (err.code === 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED') {
     return res
-      .status(400)
-      .json({
-        success: false,
-        message: 'Only allowed to upload photo within 5mb',
-      });
+      .status(401)
+      .json({ message: 'Token is invalid or has been tampered with' });
   }
 
   res.status(err.status || 500).json({ success: false, message: err.message });
