@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import signJWT from '../utils/signJWTToken.js';
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: [true, 'Please add a name'] },
+    name: { type: String, required: [true, 'Please add a name'], trim: true },
     email: {
       type: String,
       required: [true, 'Please add an email'],
@@ -37,5 +38,13 @@ userSchema.pre('save', async function () {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
+
+// Generate a token
+userSchema.methods.generateToken = async function () {
+  const accessToken = await signJWT({ id: this._id.toString() }, '1m');
+  const refreshToken = await signJWT({ id: this._id.toString() }, '30d');
+
+  return { accessToken, refreshToken };
+};
 
 export const User = mongoose.model('User', userSchema);

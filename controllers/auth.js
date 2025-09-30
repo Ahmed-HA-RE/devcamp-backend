@@ -15,8 +15,21 @@ export const registerUser = asyncHandler(async (req, res, next) => {
   const { name, email, password, role } = req.body;
 
   const validatedData = registerSchema.parse({ name, email, password, role });
-
   const user = await User.create(validatedData);
 
-  res.status(201).json({ succes: true });
+  // Create access token
+  const { accessToken } = await user.generateToken();
+
+  res.status(201).json({
+    succes: true,
+    data: {
+      accessToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    },
+  });
 });
