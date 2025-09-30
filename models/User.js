@@ -47,4 +47,9 @@ userSchema.methods.generateToken = async function () {
   return { accessToken, refreshToken };
 };
 
+// Match user entered password with the password that is in database?
+userSchema.methods.matchPassword = async function (enteredPass) {
+  return await bcrypt.compare(enteredPass, this.password);
+};
+
 export const User = mongoose.model('User', userSchema);

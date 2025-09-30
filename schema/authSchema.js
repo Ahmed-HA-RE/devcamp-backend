@@ -21,3 +21,5 @@ export const registerSchema = z.object({
       error: 'Password must contain at least one UpperCase character',
     }),
 });
+
+export const loginSchema = registerSchema.pick({ email: true, password: true });
