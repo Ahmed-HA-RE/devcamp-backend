@@ -8,7 +8,7 @@ export const registerSchema = z.object({
     .email({ error: 'Please enter a valid email' })
     .nonempty({ error: 'Email cannot be empty' }),
   role: z
-    .enum(['user', 'publisher'], { error: 'Invalid role' })
+    .enum(['user', 'publisher', 'admin'], { error: 'Invalid role' })
     .prefault('user'),
   password: z
     .string({ error: 'Password is required' })

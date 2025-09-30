@@ -3,7 +3,7 @@ import asyncHandler from './asyncHandler.js';
 import { User } from '../models/User.js';
 import { JWT_SECRET } from '../utils/encryptJWT.js';
 
-const protect = asyncHandler(async (req, res, next) => {
+export const protect = asyncHandler(async (req, res, next) => {
   const authHeaders = req.headers.authorization;
 
   if (!authHeaders && !authHeaders?.startsWith('Bearer')) {
@@ -29,4 +29,14 @@ const protect = asyncHandler(async (req, res, next) => {
   next();
 });
 
-export default protect;
+export const authorizeRole = (...roles) =>
+  asyncHandler(async (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      const err = new Error(
+        `User with role of ${req.user.role} dosen't have permission to access that`
+      );
+      err.status = 403;
+      throw err;
+    }
+    next();
+  });
