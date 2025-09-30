@@ -18,7 +18,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 
   const validatedData = registerSchema.parse({ name, email, password, role });
 
-  const isUserAvailable = User.findOne({ email });
+  const isUserAvailable = await User.findOne({ email });
 
   if (isUserAvailable) {
     const err = new Error('User already exists');
@@ -112,6 +112,16 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @route              POST /api/v1/auth/logout
+// @desc               Clear token
+// @access             Private
+export const logout = asyncHandler(async (req, res, next) => {
+  res
+    .clearCookie('refreshToken')
+    .status(200)
+    .json({ message: 'Succesfully Logged Out' });
+});
+
 // @route              POST /api/v1/auth/refresh
 // @desc               Refresh a user's token
 // @access             Private
@@ -149,4 +159,11 @@ export const refreshToken = asyncHandler(async (req, res, next) => {
       },
     },
   });
+});
+
+// @route              GET /api/v1/me
+// @desc               Get user info
+// @access             Private
+export const getMe = asyncHandler(async (req, res, next) => {
+  res.status(200).json(req.user);
 });

@@ -50,11 +50,17 @@ export const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Jose error if JWT Token is invalid
+  // jose error if JWT Token is invalid
   if (err.code === 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED') {
     return res
       .status(401)
       .json({ message: 'Token is invalid or has been tampered with' });
+  }
+  // jose error if JWT Token ha expired
+  if (err.code === 'ERR_JWT_EXPIRED') {
+    return res
+      .status(401)
+      .json({ message: 'Token expired. Please login again.' });
   }
 
   res.status(err.status || 500).json({ success: false, message: err.message });
