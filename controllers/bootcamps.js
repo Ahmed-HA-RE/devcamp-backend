@@ -66,16 +66,29 @@ export const updateBootcamp = asyncHandler(async (req, res, next) => {
 
   const validatedData = updatedBootcampSchema.parse(req.body);
 
-  const bootcamp = await Bootcamp.findOneAndUpdate({ _id: id }, validatedData, {
-    new: true,
-    runValidators: true,
-  });
+  let bootcamp = await Bootcamp.findById(id);
 
   if (!bootcamp) {
     const err = new Error(`No bootcamp found`);
     err.status = 404;
     throw err;
   }
+
+  if (
+    req.user._id.toString() !== bootcamp.user.toString() &&
+    req.user.role !== 'admin'
+  ) {
+    const err = new Error(
+      `Not Authorized to update the bootcamp as the publisher with the email ${req.user.email} dosen't have the ownership.`
+    );
+    err.status = 403;
+    throw err;
+  }
+
+  bootcamp = await Bootcamp.findByIdAndUpdate(id, validatedData, {
+    new: true,
+    runValidators: true,
+  });
 
   res.status(200).json({ success: true, data: bootcamp });
 });
@@ -91,6 +104,17 @@ export const deleteBootcamp = asyncHandler(async (req, res, next) => {
   if (!bootcamp) {
     const err = new Error(`No bootcamp found`);
     err.status = 404;
+    throw err;
+  }
+
+  if (
+    req.user._id.toString() !== bootcamp.user.toString() &&
+    req.user.role !== 'admin'
+  ) {
+    const err = new Error(
+      `Not Authorized to update the bootcamp as the publisher with the email ${req.user.email} dosen't have the ownership.`
+    );
+    err.status = 403;
     throw err;
   }
 
@@ -120,6 +144,8 @@ export const getBootcampsInRadius = asyncHandler(async (req, res, next) => {
 // @desc               Update bootcamp to upload photo
 // @access             Private
 export const uploadPhoto = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+
   if (!req.body) {
     const err = new Error('Please add a photo');
     err.status = 400;
@@ -132,11 +158,30 @@ export const uploadPhoto = asyncHandler(async (req, res, next) => {
     throw err;
   }
   const photo = await uploadPhotoToCloudinary(req.file);
-  console.log(photo);
-  await Bootcamp.findByIdAndUpdate(
-    req.params.id,
+
+  let bootcamp = await Bootcamp.findById(id);
+
+  if (!bootcamp) {
+    const err = new Error(`No bootcamp found`);
+    err.status = 404;
+    throw err;
+  }
+
+  if (
+    req.user._id.toString() !== bootcamp.user.toString() &&
+    req.user.role !== 'admin'
+  ) {
+    const err = new Error(
+      `Not Authorized to update the bootcamp as the publisher with the email ${req.user.email} dosen't have the ownership.`
+    );
+    err.status = 403;
+    throw err;
+  }
+
+  bootcamp = await Bootcamp.findByIdAndUpdate(
+    id,
     { photo: photo.secure_url },
-    { new: true, runValidators: true }
+    { new: true }
   );
 
   res.status(200).json({ success: true, file: photo.display_name });

@@ -43,6 +43,13 @@ router
 
 router.route('/radius/:long/:lat/:distance').get(getBootcampsInRadius); //GET /api/v1/bootcamps/radius/:long/:lat/:distance
 
-router.route('/:id/photo').put(upload.single('photo'), uploadPhoto);
+router
+  .route('/:id/photo')
+  .put(
+    protect,
+    authorizeRole('role', 'admin'),
+    upload.single('photo'),
+    uploadPhoto
+  );
 
 export default router;
