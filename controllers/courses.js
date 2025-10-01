@@ -50,10 +50,23 @@ export const createCourse = asyncHandler(async (req, res, next) => {
     err.status = 404;
     throw err;
   }
+  if (
+    bootcamp.user.toString() !== req.user._id.toString() &&
+    req.user.role !== 'admin'
+  ) {
+    const err = new Error(
+      `User with the email of ${req.user.email} dosen't have the ownership for this bootcamp`
+    );
+    err.status = 403;
+    throw err;
+  }
 
   const validatedData = courseSchema.parse(req.body);
 
-  const newCourse = await Course.create(validatedData);
+  const newCourse = await Course.create({
+    ...validatedData,
+    user: req.user._id,
+  });
 
   res.status(201).json({ success: true, data: newCourse });
 });
@@ -64,7 +77,11 @@ export const createCourse = asyncHandler(async (req, res, next) => {
 export const updateCourse = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
-  const course = await Course.find({ _id: id });
+  console.log(req.user);
+
+  let course = await Course.findById(id);
+  console.log(course);
+
   if (!course) {
     const err = new Error('No course found');
     err.status = 404;
@@ -77,15 +94,25 @@ export const updateCourse = asyncHandler(async (req, res, next) => {
     throw err;
   }
 
-  const validatedData = updateCourseSchema.parse(req.body);
-  console.log(validatedData);
+  if (
+    course.user.toString() !== req.user._id.toString() &&
+    req.user.role !== 'admin'
+  ) {
+    const err = new Error(
+      `User with the email of ${req.user.email} dosen't have the ownership for this course`
+    );
+    err.status = 403;
+    throw err;
+  }
 
-  const updatedCourse = await Course.findByIdAndUpdate(id, validatedData, {
-    runValidators: true,
+  const validatedData = updateCourseSchema.parse(req.body);
+
+  course = await Course.findByIdAndUpdate(id, validatedData, {
     new: true,
+    runValidators: true,
   });
 
-  res.status(200).json({ success: true, data: updatedCourse });
+  res.status(200).json({ success: true, data: course });
 });
 
 // @route              DELETE /api/v1/courses/:id
@@ -98,6 +125,17 @@ export const deleteCourse = asyncHandler(async (req, res, next) => {
   if (!course) {
     const err = new Error('No course found');
     err.status = 404;
+    throw err;
+  }
+
+  if (
+    course.user.toString() !== req.user._id.toString() &&
+    req.user.role !== 'admin'
+  ) {
+    const err = new Error(
+      `User with the email of ${req.user.email} dosen't have the ownership for this course`
+    );
+    err.status = 403;
     throw err;
   }
 

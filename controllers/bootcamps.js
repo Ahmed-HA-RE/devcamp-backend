@@ -157,7 +157,6 @@ export const uploadPhoto = asyncHandler(async (req, res, next) => {
     err.status = 400;
     throw err;
   }
-  const photo = await uploadPhotoToCloudinary(req.file);
 
   let bootcamp = await Bootcamp.findById(id);
 
@@ -177,6 +176,7 @@ export const uploadPhoto = asyncHandler(async (req, res, next) => {
     err.status = 403;
     throw err;
   }
+  const photo = await uploadPhotoToCloudinary(req.file);
 
   bootcamp = await Bootcamp.findByIdAndUpdate(
     id,
