@@ -13,13 +13,7 @@ export const registerSchema = z.object({
   password: z
     .string({ error: 'Password is required' })
     .min(6, { error: 'Password must be at least 6 characters' })
-    .max(30, { error: "Password can't be more than 30 characters" })
-    .regex(/^(?=.*[a-z]).*$/, {
-      error: 'Password must contain at least one lowercase character',
-    })
-    .regex(/^(?=.*[A-Z]).*$/, {
-      error: 'Password must contain at least one UpperCase character',
-    }),
+    .max(30, { error: "Password can't be more than 30 characters" }),
 });
 
 export const loginSchema = registerSchema.pick({ email: true, password: true });

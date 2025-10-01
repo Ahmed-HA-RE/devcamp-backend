@@ -33,7 +33,21 @@ export const getBootcamp = asyncHandler(async (req, res, next) => {
 export const createBootcamp = asyncHandler(async (req, res, next) => {
   const validatedData = bootcampSchema.parse(req.body);
 
-  const newBootcamp = await Bootcamp.create(validatedData);
+  // Publisher should only publish one bootcamp with the associated id
+  const publishedBootcamp = await Bootcamp.findOne({ user: req.user._id });
+
+  if (publishedBootcamp && req.user.role === 'publisher') {
+    const err = new Error(
+      `The user with the email of ${req.user.email} has already published an bootcamp`
+    );
+    err.status = 403;
+    throw err;
+  }
+
+  const newBootcamp = await Bootcamp.create({
+    ...validatedData,
+    user: req.user.id,
+  });
 
   res.status(201).json({ success: true, data: newBootcamp });
 });
