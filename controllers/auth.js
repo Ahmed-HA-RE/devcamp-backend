@@ -4,6 +4,8 @@ import {
   registerSchema,
   loginSchema,
   resetPassSchema,
+  updateUserSchema,
+  forgotPassSchema,
 } from '../schema/authSchema.js';
 import * as jose from 'jose';
 import { JWT_SECRET } from '../utils/encryptJWT.js';
@@ -186,7 +188,7 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
     throw err;
   }
 
-  const validatedEmail = resetPassSchema.parse(req.body);
+  const validatedEmail = forgotPassSchema.parse(req.body);
 
   const user = await User.findOne({ email: validatedEmail.email });
 
@@ -244,6 +246,7 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   }
 
   user.password = req.body.password;
+
   (user.resetPasswordToken = undefined), (user.resetPasswordExpire = undefined);
   await user.save();
 
@@ -268,5 +271,74 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
       email: user.email,
       role: user.role,
     },
+  });
+});
+
+// @route              PUT /api/v1/update-details
+// @desc               Update user's details
+// @access             Private
+export const updateUserDetails = asyncHandler(async (req, res, next) => {
+  if (!req.body) {
+    const err = new Error(
+      'Please provide the email or name you wanna change to'
+    );
+    err.status = 400;
+    throw err;
+  }
+
+  const fieldsToUpdate = {
+    name: req.body.name,
+    email: req.body.email,
+  };
+
+  const validatedData = updateUserSchema.parse(fieldsToUpdate);
+
+  const user = await User.findByIdAndUpdate(req.user.id, validatedData, {
+    runValidators: true,
+    new: true,
+  });
+
+  res.status(200).json({ success: true, data: user });
+});
+
+// @route              PUT /api/v1/update-password
+// @desc               Update authenticated user's password
+// @access             Private
+export const updateUserPassord = asyncHandler(async (req, res, next) => {
+  if (!req.body || !req.body.currentPassword || !req.body.newPassword) {
+    const err = new Error(
+      'Please provide both your current password and the new password to update. '
+    );
+    err.status = 400;
+    throw err;
+  }
+
+  const user = await User.findById(req.user.id).select('+password');
+
+  if (!(await user.matchPassword(req.body.currentPassword))) {
+    const err = new Error('Invalid Credentials');
+    err.status = 400;
+    throw err;
+  }
+
+  const validatedNewPass = resetPassSchema.parse(req.body);
+  user.password = validatedNewPass.newPassword;
+  user.save();
+
+  // Create access token
+  const { accessToken } = await user.generateToken();
+
+  // Create refresh token
+  const { refreshToken } = await user.generateToken();
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: process.env.NODE_ENV === 'production' ? true : false,
+  });
+
+  res.status(200).json({
+    success: true,
+    accessToken,
   });
 });

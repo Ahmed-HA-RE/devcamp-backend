@@ -18,5 +18,21 @@ export const registerSchema = z.object({
 
 export const loginSchema = registerSchema.pick({ email: true, password: true });
 
+// Schema for forgot password
+export const forgotPassSchema = registerSchema.pick({ email: true });
+
 // Schema for reset password
-export const resetPassSchema = registerSchema.pick({ email: true });
+export const resetPassSchema = z.object({
+  newPassword: z
+    .string({ error: 'Password is required' })
+    .min(6, { error: 'Password must be at least 6 characters' })
+    .max(30, { error: "Password can't be more than 30 characters" }),
+});
+
+// Schema for updating user's data
+export const updateUserSchema = registerSchema
+  .omit({
+    password: true,
+    role: true,
+  })
+  .partial();
