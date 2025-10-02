@@ -17,3 +17,6 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = registerSchema.pick({ email: true, password: true });
+
+// Schema for reset password
+export const resetPassSchema = registerSchema.pick({ email: true });

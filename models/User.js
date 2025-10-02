@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import signJWT from '../utils/signJWTToken.js';
+import crypto from 'crypto';
 
 const userSchema = new mongoose.Schema(
   {
@@ -26,7 +27,7 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
     resetPasswordToken: String,
-    resetPasswordExpire: String,
+    resetPasswordExpire: Date,
   },
   { timestamps: true }
 );
@@ -50,6 +51,19 @@ userSchema.methods.generateToken = async function () {
 // Match user entered password with the password that is in database?
 userSchema.methods.matchPassword = async function (enteredPass) {
   return await bcrypt.compare(enteredPass, this.password);
+};
+
+// Reset and hash reset password token
+userSchema.methods.getResetPassToken = function () {
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  return resetToken;
 };
 
 export const User = mongoose.model('User', userSchema);
