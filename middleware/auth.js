@@ -7,7 +7,7 @@ export const protect = asyncHandler(async (req, res, next) => {
   const authHeaders = req.headers.authorization;
 
   if (!authHeaders && !authHeaders?.startsWith('Bearer')) {
-    const err = new Error('Not Authorized. No token provided');
+    const err = new Error('Not Authorized');
     err.status = 401;
     throw err;
   }
