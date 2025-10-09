@@ -9,6 +9,7 @@ import {
   uploadPhoto,
 } from '../controllers/bootcamps.js';
 import coursesRoutes from './courses.js';
+import reviewsRouter from './reviews.js';
 import multer from 'multer';
 import { advancedResults } from '../middleware/advancedResults.js';
 import { Bootcamp } from '../models/Bootcamp.js';
@@ -26,11 +27,17 @@ const router = express.Router();
 
 // Re-route to another resource routers
 router.use('/:bootcampId/courses', coursesRoutes);
+// Re-route to another resource routers
+router.use('/:bootcampId/reviews', reviewsRouter);
 
 router
   .route('/')
   .get(
-    advancedResults(Bootcamp, { path: 'courses', select: 'title description' }),
+    advancedResults(
+      Bootcamp,
+      { path: 'courses', select: 'title description' },
+      { path: 'user' }
+    ),
     getBootcamps
   ) // GET /api/v1/bootcamps
   .post(protect, authorizeRole('publisher', 'admin'), createBootcamp); // POST /api/v1/bootcamps

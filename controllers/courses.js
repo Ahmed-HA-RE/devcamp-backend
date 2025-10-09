@@ -77,10 +77,7 @@ export const createCourse = asyncHandler(async (req, res, next) => {
 export const updateCourse = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
-  console.log(req.user);
-
   let course = await Course.findById(id);
-  console.log(course);
 
   if (!course) {
     const err = new Error('No course found');

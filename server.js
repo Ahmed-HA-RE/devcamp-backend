@@ -4,6 +4,7 @@ import bootcampsRouter from './routes/bootcamps.js';
 import coursesRouter from './routes/courses.js';
 import authRouter from './routes/auth.js';
 import userRouter from './routes/users.js';
+import reviewsRouter from './routes/reviews.js';
 import { connectDB } from './config/database.js';
 import { logger } from './middleware/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -31,6 +32,9 @@ app.use('/api/v1/courses', coursesRouter);
 
 // auth router
 app.use('/api/v1/auth', authRouter);
+
+// reviews router
+app.use('/api/v1/reviews', reviewsRouter);
 
 // users router for admins only
 app.use('/api/v1/users', userRouter);

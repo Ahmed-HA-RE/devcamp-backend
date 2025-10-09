@@ -42,6 +42,9 @@ export const updateUser = asyncHandler(async (req, res, next) => {
 // @access             Private
 export const deleteUser = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  await User.findByIdAndDelete(id);
+  const user = await User.findById(id);
+  console.log(user);
+
+  await user.deleteOne();
   res.status(200).json({ success: true });
 });

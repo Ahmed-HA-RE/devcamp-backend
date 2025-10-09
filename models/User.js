@@ -1,3 +1,4 @@
+import colors from '@colors/colors';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import signJWT from '../utils/signJWTToken.js';
@@ -65,5 +66,17 @@ userSchema.methods.getResetPassToken = function () {
   this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
+
+// Cascade delete the associated reviews when user is deletedfrom database
+userSchema.post(
+  'deleteOne',
+  { document: true, query: false },
+  async function () {
+    console.log(
+      `Removing reviews associated with the deleted user: ${this.id}.`.red
+    );
+    await this.model('Review').deleteMany({ user: this._id });
+  }
+);
 
 export const User = mongoose.model('User', userSchema);

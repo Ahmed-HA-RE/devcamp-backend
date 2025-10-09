@@ -123,13 +123,15 @@ bootcampSchema.virtual('courses', {
   justOne: false,
 });
 
-// Cascade delete courses when related bootcamp is deleted
+// Cascade delete courses and reviews when related bootcamp is deleted
 bootcampSchema.pre(
   'deleteOne',
   { document: true, query: false },
   async function () {
     console.log(`Courses being removed from bootcamp: ${this._id}`.red);
+    console.log(`Reviews being removed from bootcamp: ${this._id}`.red);
     await this.model('Course').deleteMany({ bootcamp: this._id });
+    await this.model('Review').deleteMany({ bootcamp: this._id });
   }
 );
 
