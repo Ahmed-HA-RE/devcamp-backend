@@ -132,6 +132,15 @@ export const deleteReview = asyncHandler(async (req, res, next) => {
     throw err;
   }
 
+  if (
+    req.user._id.toString() !== review.user.toString() &&
+    req.user.role !== 'role'
+  ) {
+    const err = new Error('Not authorized to access this review');
+    err.status = 403;
+    throw err;
+  }
+
   await review.deleteOne();
 
   res.status(200).json({ success: true });

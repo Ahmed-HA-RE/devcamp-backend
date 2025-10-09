@@ -23,7 +23,7 @@ router
 router
   .route('/:id')
   .get(getReview) // GET /api/v1/reviews/:id
-  .put(protect, updateReview) // PUT /api/v1/reviews/:id
+  .put(protect, authorizeRole('user', 'admin'), updateReview) // PUT /api/v1/reviews/:id
   .delete(protect, deleteReview); // DELETE /api/v1/reviews/:id
 
 export default router;
