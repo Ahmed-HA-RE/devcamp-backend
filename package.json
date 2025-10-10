@@ -29,6 +29,7 @@
     "multer": "^2.0.2",
     "node-geocoder": "^4.4.1",
     "nodemailer": "^7.0.6",
+    "nodemailer-sendgrid": "^1.0.3",
     "slugify": "^1.4.0",
     "zod": "^4.1.11"
   }

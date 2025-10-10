@@ -7,6 +7,7 @@ import userRouter from './routes/users.js';
 import reviewsRouter from './routes/reviews.js';
 import { connectDB } from './config/database.js';
 import { logger } from './middleware/logger.js';
+import path from 'path';
 import { errorHandler } from './middleware/errorHandler.js';
 import cookieParser from 'cookie-parser';
 import ExpressMongoSanitize from 'express-mongo-sanitize';
@@ -21,10 +22,14 @@ dotenv.config();
 const app = express();
 connectDB();
 
+const __filename = new URL(import.meta.url).pathname;
+const __dirname = path.dirname(__filename);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.set('query parser', 'extended');
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(helmet());
 app.use(xss());
 app.use(limiter);
