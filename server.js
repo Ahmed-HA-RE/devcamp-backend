@@ -9,6 +9,12 @@ import { connectDB } from './config/database.js';
 import { logger } from './middleware/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import cookieParser from 'cookie-parser';
+import ExpressMongoSanitize from 'express-mongo-sanitize';
+import helmet from 'helmet';
+import { xss } from 'express-xss-sanitizer';
+import limiter from './config/rateLimiter.js';
+import hpp from 'hpp';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -19,6 +25,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.set('query parser', 'extended');
 app.use(cookieParser());
+app.use(helmet());
+app.use(xss());
+app.use(limiter);
+app.use(hpp());
+app.use(cors());
 
 const PORT = process.env.PORT || 8000;
 
@@ -38,6 +49,9 @@ app.use('/api/v1/reviews', reviewsRouter);
 
 // users router for admins only
 app.use('/api/v1/users', userRouter);
+
+// Sanitize data
+app.use(ExpressMongoSanitize());
 
 // Not Found middleware
 app.use((req, res, next) => {

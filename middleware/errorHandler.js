@@ -8,7 +8,7 @@ export const errorHandler = (err, req, res, next) => {
   if (err.name === 'CastError') {
     return res.status(404).json({
       success: false,
-      message: `Resource not found with the id of ${err.value}`,
+      message: `Resource not found.`,
     });
   }
 
