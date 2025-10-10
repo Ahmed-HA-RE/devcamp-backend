@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport(
 
 export const sendEmail = async (options) => {
   const info = await transporter.sendMail({
-    from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
+    from: `Devcamper Support <${process.env.FROM_EMAIL}>`,
     to: options.email,
     subject: options.subject,
     text: options.message,
